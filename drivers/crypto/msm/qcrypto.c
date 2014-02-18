@@ -304,13 +304,10 @@ struct qcrypto_cipher_ctx {
 	unsigned int authsize;
 	unsigned int auth_key_len;
 
+	struct crypto_priv *cp;
+	unsigned int flags;
+	struct crypto_engine *pengine;  /* fixed engine assigned */
 	u8 ccm4309_nonce[QCRYPTO_CCM4309_NONCE_LEN];
-};
-
-struct qcrypto_resp_ctx {
-	struct list_head list;
-	struct crypto_async_request *async_req; /* async req */
-	int res;                                /* execution result */
 };
 
 struct qcrypto_cipher_req_ctx {
@@ -882,6 +879,14 @@ static int _disp_stats(int id)
 	len += scnprintf(_debug_read_buf + len, DEBUG_MAX_RW_BUF - len - 1,
 			"   AEAD CCM-AES decryption             : %llu\n",
 					pstat->aead_ccm_aes_dec);
+
+	len += scnprintf(_debug_read_buf + len, DEBUG_MAX_RW_BUF - len - 1,
+			"   AEAD RFC4309-CCM-AES encryption     : %d\n",
+					pstat->aead_rfc4309_ccm_aes_enc);
+	len += scnprintf(_debug_read_buf + len, DEBUG_MAX_RW_BUF - len - 1,
+			"   AEAD RFC4309-CCM-AES decryption     : %d\n",
+					pstat->aead_rfc4309_ccm_aes_dec);
+
 	len += scnprintf(_debug_read_buf + len, DEBUG_MAX_RW_BUF - len - 1,
 			"   AEAD RFC4309-CCM-AES encryption     : %llu\n",
 					pstat->aead_rfc4309_ccm_aes_enc);
@@ -3709,6 +3714,16 @@ int qcrypto_ahash_set_device(struct ahash_request *req, unsigned int dev)
 };
 EXPORT_SYMBOL(qcrypto_ahash_set_device);
 
+static int _qcrypto_prefix_alg_cra_name(char cra_name[], unsigned int size)
+{
+	char new_cra_name[CRYPTO_MAX_ALG_NAME] = "qcom-";
+	if (size >= CRYPTO_MAX_ALG_NAME - strlen("qcom-"))
+		return -EINVAL;
+	strlcat(new_cra_name, cra_name, CRYPTO_MAX_ALG_NAME);
+	strlcpy(cra_name, new_cra_name, CRYPTO_MAX_ALG_NAME);
+	return 0;
+}
+
 int qcrypto_cipher_set_flag(struct ablkcipher_request *req, unsigned int flags)
 {
 	struct qcrypto_cipher_ctx *ctx = crypto_tfm_ctx(req->base.tfm);
@@ -4580,6 +4595,36 @@ static int  _qcrypto_probe(struct platform_device *pdev)
 			dev_err(&pdev->dev, "%s alg registration failed\n",
 					q_alg->cipher_alg.cra_driver_name);
 			kzfree(q_alg);
+		} else {
+			list_add_tail(&q_alg->entry, &cp->alg_list);
+			dev_info(&pdev->dev, "%s\n",
+					q_alg->cipher_alg.cra_driver_name);
+		}
+
+		q_alg = _qcrypto_cipher_alg_alloc(cp,
+					&_qcrypto_aead_rfc4309_ccm_algo);
+		if (IS_ERR(q_alg)) {
+			rc = PTR_ERR(q_alg);
+			goto err;
+		}
+
+		if (cp->ce_support.use_sw_aes_ccm_algo) {
+			rc = _qcrypto_prefix_alg_cra_name(
+					q_alg->cipher_alg.cra_name,
+					strlen(q_alg->cipher_alg.cra_name));
+			if (rc) {
+				dev_err(&pdev->dev,
+						"The algorithm name %s is too long.\n",
+						q_alg->cipher_alg.cra_name);
+				kfree(q_alg);
+				goto err;
+			}
+		}
+		rc = crypto_register_alg(&q_alg->cipher_alg);
+		if (rc) {
+			dev_err(&pdev->dev, "%s alg registration failed\n",
+					q_alg->cipher_alg.cra_driver_name);
+			kfree(q_alg);
 		} else {
 			list_add_tail(&q_alg->entry, &cp->alg_list);
 			dev_info(&pdev->dev, "%s\n",
