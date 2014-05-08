@@ -35,6 +35,8 @@ modules.builtin
 *.zip
 *.lzo
 *.img
+zImage*
+vmlinux*
 
 #
 # Top-level generic files
