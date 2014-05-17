@@ -673,3 +673,6 @@ CONFIG_HAS_EARLYSUSPEND=y
 
 # Power Suspend
 CONFIG_POWERSUSPEND=y
+
+# Ultra Kernel Samepage Merging
+CONFIG_UKSM=y

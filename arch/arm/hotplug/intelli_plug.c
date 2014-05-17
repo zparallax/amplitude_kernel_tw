@@ -34,7 +34,11 @@
 #undef DEBUG_INTELLI_PLUG
 
 #define INTELLI_PLUG_MAJOR_VERSION	3
+<<<<<<< HEAD
 #define INTELLI_PLUG_MINOR_VERSION	8
+=======
+#define INTELLI_PLUG_MINOR_VERSION	7
+>>>>>>> ccdb94f...   The Ultra Kernel Samepage Merging feature
 
 #define DEF_SAMPLING_MS			(268)
 
@@ -358,6 +362,7 @@ static void screen_off_limit(bool on)
 #endif
 		} else {
 			/* restore */
+<<<<<<< HEAD
 			if (cpu != 0) {
 				l_ip_info = &per_cpu(ip_info, 0);
 			}
@@ -369,6 +374,11 @@ static void screen_off_limit(bool on)
 #endif
 		}
 		cpufreq_update_policy(cpu);
+=======
+			policy.max = l_ip_info->curr_max;
+		}
+		cpufreq_update_policy(i);
+>>>>>>> ccdb94f...   The Ultra Kernel Samepage Merging feature
 	}
 }
 
@@ -416,15 +426,24 @@ static void __cpuinit intelli_plug_resume(struct power_suspend *handler)
 static void __cpuinit intelli_plug_resume(struct early_suspend *handler)
 #endif
 {
+<<<<<<< HEAD
 
 	if (intelli_plug_active) {
 		int cpu;
 
+=======
+
+	if (intelli_plug_active) {
+		int num_of_active_cores;
+		int i;
+
+>>>>>>> ccdb94f...   The Ultra Kernel Samepage Merging feature
 		mutex_lock(&intelli_plug_mutex);
 		/* keep cores awake long enough for faster wake up */
 		persist_count = BUSY_PERSISTENCE;
 		suspended = false;
 		mutex_unlock(&intelli_plug_mutex);
+<<<<<<< HEAD
 
 		for_each_possible_cpu(cpu) {
 			if (cpu == 0)
@@ -434,6 +453,18 @@ static void __cpuinit intelli_plug_resume(struct early_suspend *handler)
 
 		wakeup_boost();
 		screen_off_limit(false);
+=======
+
+		/* wake up everyone */
+		num_of_active_cores = num_possible_cpus();
+
+		for (i = 1; i < num_of_active_cores; i++) {
+			cpu_up(i);
+		}
+
+		screen_off_limit(false);
+		wakeup_boost();
+>>>>>>> ccdb94f...   The Ultra Kernel Samepage Merging feature
 	}
 	queue_delayed_work_on(0, intelliplug_wq, &intelli_plug_work,
 		msecs_to_jiffies(10));
