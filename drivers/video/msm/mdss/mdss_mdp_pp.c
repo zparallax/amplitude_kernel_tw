@@ -1930,7 +1930,6 @@ int mdss_mdp_pp_resume(struct mdss_mdp_ctl *ctl, u32 dspp_num)
 	return 0;
 }
 
-
 void mdss_mdp_pp_kcal_enable(bool enable)
 {
 	u32 disp_num = 0;
@@ -2017,7 +2016,6 @@ void mdss_mdp_pp_kcal_invert(int enable)
 
 	mdss_mdp_igc_lut_config(igc_config, &copyback, copy_from_kernel);
 }
-
 
 int mdss_mdp_pp_init(struct device *dev)
 {
