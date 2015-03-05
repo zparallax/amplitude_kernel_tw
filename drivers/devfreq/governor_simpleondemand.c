@@ -13,6 +13,7 @@
 #include <linux/module.h>
 #include <linux/devfreq.h>
 #include <linux/math64.h>
+#include <linux/msm_adreno_devfreq.h>
 #include "governor.h"
 
 #define DEVFREQ_SIMPLE_ONDEMAND	"simple_ondemand"
@@ -30,11 +31,19 @@ static int devfreq_simple_ondemand_func(struct devfreq *df,
 					u32 *flag)
 {
 	struct devfreq_dev_status stat;
-	int err = df->profile->get_dev_status(df->dev.parent, &stat);
+	struct devfreq_msm_adreno_tz_data *priv = df->data;
+	struct xstats xs;
+	int err;
 	unsigned long long a, b;
+	struct devfreq_simple_ondemand_data *data = df->data;
 	unsigned long max = (df->max_freq) ? df->max_freq : UINT_MAX;
-	unsigned long min = (df->min_freq) ? df->min_freq : 0;
 
+	if (priv->bus.num)
+		stat.private_data = &xs;
+	else
+		stat.private_data = NULL;
+
+	err = df->profile->get_dev_status(df->dev.parent, &stat);
 	if (err)
 		return err;
 
@@ -48,28 +57,16 @@ static int devfreq_simple_ondemand_func(struct devfreq *df,
 	    dfso_upthreshold < dfso_downdifferential)
 		return -EINVAL;
 
-	/* Prevent overflow */
-	if (stat.busy_time >= (1 << 24) || stat.total_time >= (1 << 24)) {
-		stat.busy_time >>= 7;
-		stat.total_time >>= 7;
-	}
-
-	if (data && data->simple_scaling) {
-		if (stat.busy_time * 100 >
-		    stat.total_time * dfso_upthreshold)
-			*freq = max;
-		else if (stat.busy_time * 100 <
-		    stat.total_time * dfso_downdifferential)
-			*freq = min;
-		else
-			*freq = df->previous_freq;
-		return 0;
-	}
-
 	/* Assume MAX if it is going to be divided by zero */
 	if (stat.total_time == 0) {
 		*freq = max;
 		return 0;
+	}
+
+	/* Prevent overflow */
+	if (stat.busy_time >= (1 << 24) || stat.total_time >= (1 << 24)) {
+		stat.busy_time >>= 7;
+		stat.total_time >>= 7;
 	}
 
 	/* Set MAX if it's busy enough */
