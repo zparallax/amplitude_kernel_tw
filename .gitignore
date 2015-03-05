@@ -35,8 +35,6 @@ modules.builtin
 *.zip
 *.lzo
 *.img
-zImage*
-vmlinux*
 
 #
 # Top-level generic files
@@ -68,10 +66,6 @@ include/config
 include/linux/version.h
 include/generated
 arch/*/include/generated
-arch/arm/boot/Image
-arch/arm/boot/zImage
-arch/arm/boot/Image-dtb
-arch/arm/boot/compressed/vmlinux
 
 # stgit generated dirs
 patches-*
