@@ -68,11 +68,11 @@ make msm8974_sec_defconfig VARIANT_DEFCONFIG=msm8974pro_sec_klte_eur_defconfig S
 
 HOST_CHECK=`uname -n`
 if [ $HOST_CHECK = 'atheaven' ]; then
-	echo "detected build server...running make with 24 jobs"
-	make -j`grep 'processor' /proc/cpuinfo | wc -l`
+	echo "detected build server...running make"
+	make -j`grep 'processor' /proc/cpuinfo | wc -l` CONFIG_NO_ERROR_ON_MISMATCH=y
 else
 	echo "Others! - " + $HOST_CHECK
-	make -j`grep 'processor' /proc/cpuinfo | wc -l`
+	make -j`grep 'processor' /proc/cpuinfo | wc -l` CONFIG_NO_ERROR_ON_MISMATCH=y
 fi;
 
 echo "Copy modules to Package"
