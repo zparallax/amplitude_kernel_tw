@@ -38,15 +38,15 @@
 #define DEFAULT_LOAD_THRESHOLD 80
 #define DEFAULT_HIGH_LOAD_COUNTER 10
 #define DEFAULT_MAX_LOAD_COUNTER 20
-#define DEFAULT_CPUFREQ_UNPLUG_LIMIT 1497600
+#define DEFAULT_CPUFREQ_UNPLUG_LIMIT 1800000
 #define DEFAULT_MIN_TIME_CPU_ONLINE 1
 #define DEFAULT_TIMER 1
 #define DEFAULT_MAX_FREQ_CAP 1036800
 #define DEFAULT_MIN_CORES_ONLINE 2
 
-#define MIN_CPU_UP_US (1000 * USEC_PER_MSEC)
+#define MIN_CPU_UP_US (200 * USEC_PER_MSEC)
 #define NUM_POSSIBLE_CPUS num_possible_cpus()
-#define HIGH_LOAD (90 << 1)
+#define HIGH_LOAD (95)
 
 struct cpu_stats {
 	unsigned int counter;
@@ -129,7 +129,7 @@ static inline void cpus_online_work(void)
 {
 	unsigned int cpu;
 
-	for (cpu = 1; cpu < 4; cpu++) {
+	for (cpu = 2; cpu < 4; cpu++) {
 		if (cpu_is_offline(cpu))
 			cpu_up(cpu);
 	}

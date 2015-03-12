@@ -87,3 +87,7 @@ GTAGS
 *.orig
 *~
 \#*#
+
+arch/arm/boot/compressed/vmlinux
+arch/arm/boot/zImage*
+arch/arm/boot/compressed/piggy.lzo
