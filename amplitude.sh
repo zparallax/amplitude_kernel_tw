@@ -21,7 +21,7 @@ export USE_CCACHE=1
 #Enable FIPS mode
 #export USE_SEC_FIPS_MODE=true
 export ARCH=arm
-export CROSS_COMPILE=$PARENT_DIR/prebuilts/gcc/linux-x86/arm/linaro_4.9.3_a15/bin/arm-eabi-
+export CROSS_COMPILE=$PARENT_DIR/prebuilts/gcc/arm/linaro_4.9.3_a15/bin/arm-eabi-
 #export CROSS_COMPILE=$PARENT_DIR/linaro4.9-a15/bin/arm-cortex_a15-linux-gnueabihf-
 #export CROSS_COMPILE=$SRC_ROOT/prebuilt/linux-x86/toolchain/linaro/bin/arm-eabi-
 #export CROSS_COMPILE=$SRC_ROOT/prebuilt/linux-x86/toolchain/new/bin/arm-cortex_a15-linux-gnueabihf-
