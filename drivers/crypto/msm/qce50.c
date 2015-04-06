@@ -4738,8 +4738,10 @@ int qce_ablk_cipher_req(void *handle, struct qce_req *c_req)
 	if (_qce_sps_add_sg_data(pce_dev, areq->src, areq->nbytes,
 					&pce_dev->ce_sps.in_transfer))
 		goto bad;
-	_qce_set_flag(&pce_dev->ce_sps.in_transfer,
-				SPS_IOVEC_FLAG_EOT|SPS_IOVEC_FLAG_NWD);
+	
+	if (areq->nbytes)
+		_qce_set_flag(&pce_dev->ce_sps.in_transfer,
+			SPS_IOVEC_FLAG_EOT|SPS_IOVEC_FLAG_NWD);
 
 	if (_qce_sps_add_sg_data(pce_dev, areq->dst, areq->nbytes,
 					&pce_dev->ce_sps.out_transfer))

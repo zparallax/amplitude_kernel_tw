@@ -603,6 +603,7 @@ module_param(pvs_config_ver, uint, S_IRUGO);
 
 extern int use_for_scaling(unsigned int freq);
 static unsigned int cnt;
+extern bool is_used_by_scaling(unsigned int freq);
 
 ssize_t show_UV_mV_table(struct cpufreq_policy *policy,
 			 char *buf)
